@@ -30,7 +30,7 @@ app.post('/goods', (req, res) => {
 })
 
 app.get('/goods', (req, res) => {
-    res.send(JSON.stringify(goods));
+    res.json(goods);
 });
 
 app.get('/goods/:id', (req, res) => {
