@@ -1,0 +1,61 @@
+$primary: #fcb773;
+$accent: #86edfc;
+$disabled: #a0a0a0;
+
+@mixin button($color) {
+    padding: 10px 14px;
+    background: $color;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.card {
+    padding: 16px;
+    margin: 10px;
+    height: fit-content;
+    width: 350px;
+
+    background: $primary;
+    color: #3a2929;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &__title {
+        font-size: 20px;
+        color: white;
+    }
+
+    &__description {
+        font-size: 12px;
+        color: #6d6d6d;
+    }
+
+    &--accent{
+        border: 2px solid $disabled;
+    }
+
+    &__image-container{
+        width: 300px;
+        height: 300px;
+    }
+
+    &__image{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+}
+
+.btn {
+    @include button($accent);
+
+    &--active{
+        @include button($disabled);
+    }
+
+}
+
