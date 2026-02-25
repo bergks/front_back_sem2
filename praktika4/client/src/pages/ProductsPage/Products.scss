@@ -3,7 +3,7 @@ $panel: rgba(255, 255, 255, 0.03);
 $border: rgba(255, 255, 255, 0.10);
 $text: #e7eaf3;
 
-$primary: rgba(99, 102, 241, 0.55);
+$primary: rgba(99, 101, 241, 0.897);
 $primaryBg: rgba(99, 102, 241, 0.18);
 
 $danger: rgba(239, 68, 68, 0.45);
@@ -221,8 +221,14 @@ $dangerBg: rgba(239, 68, 68, 0.12);
   &__category {
     font-size: 16px;
     justify-self: left;
-    padding-left: 25px;
-    color: $primary
+    color: $primary;
+    font-weight: 700;
+    padding: 5px 10px;
+    background-color: #e7eaf3af;
+    border-radius: 20px;
+    text-align: center;
+    width: fit-content;
+    margin: 10px 25px 8px 25px; 
   }
 
   &__details {
@@ -233,6 +239,11 @@ $dangerBg: rgba(239, 68, 68, 0.12);
   &__price {
     font-weight: 700;
     color: $primary;
+    padding: 5px 10px;
+    background-color: #e7eaf3af;
+    border-radius: 20px;
+    text-align: center;
+    width: fit-content;
   }
 
   &__stock {
