@@ -6,15 +6,16 @@ export default function ProductModal({ open, mode, initialProduct, onClose, onSu
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     if (!open) return;
-    
     setName(initialProduct?.name ?? '');
     setCategory(initialProduct?.category ?? '');
     setDescription(initialProduct?.description ?? '');
     setPrice(initialProduct?.price != null ? String(initialProduct.price) : '');
     setStock(initialProduct?.stock != null ? String(initialProduct.stock) : '');
+    setImageUrl(initialProduct?.imageUrl ?? '');
   }, [open, initialProduct]);
 
   if (!open) return null;
@@ -29,6 +30,7 @@ export default function ProductModal({ open, mode, initialProduct, onClose, onSu
     const trimmedDescription = description.trim();
     const parsedPrice = Number(price);
     const parsedStock = Number(stock);
+    const trimmedImageUrl = imageUrl.trim();
 
     if (!trimmedName) {
       alert('Введите название товара');
@@ -61,14 +63,15 @@ export default function ProductModal({ open, mode, initialProduct, onClose, onSu
       category: trimmedCategory,
       description: trimmedDescription,
       price: parsedPrice,
-      stock: parsedStock
+      stock: parsedStock,
+      imageUrl: trimmedImageUrl
     });
   };
 
   return (
     <div className="backdrop" onMouseDown={onClose}>
-      <div 
-        className="modal" 
+      <div
+        className="modal"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -110,6 +113,16 @@ export default function ProductModal({ open, mode, initialProduct, onClose, onSu
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Описание товара"
               rows="3"
+            />
+          </label>
+
+          <label className="label">
+            URL изображения
+            <input
+              className="input"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
             />
           </label>
 

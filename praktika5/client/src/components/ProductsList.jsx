@@ -7,7 +7,7 @@ export default function ProductList({ products, onEdit, onDelete }) {
   }
 
   return (
-    <div className="list">
+    <div className="product-grid">
       {products.map((product) => (
         <ProductCard
           key={product.id}
