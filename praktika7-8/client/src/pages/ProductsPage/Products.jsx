@@ -79,12 +79,6 @@ const handleSubmitModal = async (productData) => {
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="header__inner">
-          <div className="brand">Coffee Shop</div>
-          <div className="header__right">React</div>
-        </div>
-      </header>
 
       <main className="main">
         <div className="container">

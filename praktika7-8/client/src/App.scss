@@ -2,6 +2,23 @@
   text-align: center;
 }
 
+// App.scss
+.main-content {
+  margin-top: 70px; // Чтобы контент не скрывался под фиксированным Header
+  min-height: calc(100vh - 70px);
+  background: #0b0f19;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #0b0f19;
+  color: #e7eaf3;
+  font-size: 18px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

@@ -69,7 +69,6 @@ router.post('/register', authController.register);
  * /api/auth/login:
  *   post:
  *     summary: Авторизация пользователя
- *     description: Проверяет email и пароль пользователя, возвращает JWT токен
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -99,13 +98,48 @@ router.post('/register', authController.register);
  *               properties:
  *                 accessToken:
  *                   type: string
- *                   description: JWT токен для доступа к защищенным маршрутам
- *       400:
- *         description: Отсутствуют обязательные поля
- *       401:
- *         description: Неверные учетные данные
+ *                 refreshToken:
+ *                   type: string
  */
 router.post('/login', authController.login);
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Обновление токенов
+ *     description: Получает новую пару access и refresh токенов по действующему refresh токену
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Действующий refresh токен
+ *     responses:
+ *       200:
+ *         description: Новая пара токенов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       400:
+ *         description: Отсутствует refreshToken
+ *       401:
+ *         description: Невалидный или просроченный refresh токен
+ */
+router.post('/refresh', authController.refresh);
 
 /**
  * @swagger
@@ -140,5 +174,29 @@ router.post('/login', authController.login);
  *         description: Не авторизован
  */
 router.get('/me', authMiddleware, authController.getMe);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Выход из системы
+ *     description: Удаляет refresh токен
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       204:
+ *         description: Успешный выход
+ */
+router.post('/logout', authController.logout);
 
 module.exports = router;

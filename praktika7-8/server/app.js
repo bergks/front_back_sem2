@@ -18,6 +18,8 @@ app.use(loggerMiddleware);
 
 setupSwagger(app);
 
+let refreshTokens = new Set();
+
 // Подключаем все маршруты
 app.use('/api', routes);
 
