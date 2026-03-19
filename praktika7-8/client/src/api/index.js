@@ -98,36 +98,33 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
-  // Получить все товары
+  // ===== ТОВАРЫ =====
   getProducts: async () => {
     const response = await apiClient.get('/products');
     return response.data;
   },
 
-  // Получить товар по ID
   getProductById: async (id) => {
     const response = await apiClient.get(`/products/${id}`);
     return response.data;
   },
 
-  // Создать новый товар
   createProduct: async (product) => {
     const response = await apiClient.post('/products', product);
     return response.data;
   },
 
-  // Обновить товар
   updateProduct: async (id, product) => {
     const response = await apiClient.patch(`/products/${id}`, product);
     return response.data;
   },
 
-  // Удалить товар
   deleteProduct: async (id) => {
     const response = await apiClient.delete(`/products/${id}`);
     return response.data;
   },
 
+  // ===== АУТЕНТИФИКАЦИЯ =====
   register: async (userData) => {
     const response = await apiClient.post(`/auth/register`, userData);
     return response.data;
@@ -173,4 +170,38 @@ export const api = {
     const response = await apiClient.get(`/auth/me`);
     return response.data;
   },
+
+  // ===== АДМИНКА (УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ) =====
+  
+  /**
+   * Получить список всех пользователей (только для админа)
+   */
+  getUsers: async () => {
+    const response = await apiClient.get('/users');
+    return response.data;
+  },
+
+  /**
+   * Получить пользователя по ID (только для админа)
+   */
+  getUserById: async (id) => {
+    const response = await apiClient.get(`/users/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Обновить пользователя (роль, статус) (только для админа)
+   */
+  updateUser: async (id, userData) => {
+    const response = await apiClient.put(`/users/${id}`, userData);
+    return response.data;
+  },
+
+  /**
+   * Удалить пользователя (только для админа)
+   */
+  deleteUser: async (id) => {
+    const response = await apiClient.delete(`/users/${id}`);
+    return response.data;
+  }
 };

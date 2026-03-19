@@ -81,16 +81,13 @@ function setupSwagger(app) {
  *           default: 0
  */
 
+// config/swagger.js (в секцию components.schemas)
 /**
  * @swagger
  * components:
  *   schemas:
  *     User:
  *       type: object
- *       required:
- *         - email
- *         - first_name
- *         - last_name
  *       properties:
  *         id:
  *           type: string
@@ -99,8 +96,8 @@ function setupSwagger(app) {
  *         email:
  *           type: string
  *           format: email
- *           description: Email пользователя (логин)
- *           example: "ivan@example.com"
+ *           description: Email пользователя
+ *           example: "user@example.com"
  *         first_name:
  *           type: string
  *           description: Имя пользователя
@@ -109,6 +106,21 @@ function setupSwagger(app) {
  *           type: string
  *           description: Фамилия пользователя
  *           example: "Петров"
+ *         role:
+ *           type: string
+ *           enum: [user, seller, admin]
+ *           description: Роль пользователя
+ *           example: "user"
+ *         status:
+ *           type: string
+ *           enum: [active, banned]
+ *           description: Статус пользователя
+ *           example: "active"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Дата регистрации
+ *           example: "2024-03-18T10:30:00Z"
  */
 
 module.exports = { setupSwagger };

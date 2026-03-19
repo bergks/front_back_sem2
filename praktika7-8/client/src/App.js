@@ -8,6 +8,8 @@ import Header from './components/Header';
 import ProductsPage from './pages/ProductsPage/Products';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
+import PrivateRoute from './components/PrivateRoute';
+import AdminUsersPage from './components/AdminUsersPage'
 
 // API
 import { api } from './api';
@@ -106,8 +108,14 @@ function App() {
             {/* Защищенные маршруты */}
             <Route
               path="/products"
-              element={isAuth ? <ProductsPage /> : <Navigate to="/login" />}
+              element={isAuth ? <ProductsPage user={user} /> : <Navigate to="/login" />}
             />
+            {/* Маршруты для админа */}
+            <Route path="/users" element={
+              <PrivateRoute isAuth={isAuth} requiredRole="admin" user={user}>
+                <AdminUsersPage />
+              </PrivateRoute>
+            } />
 
             {/* Редирект с корневого пути */}
             <Route

@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductCard from './ProductItem';
 
-export default function ProductList({ products, onEdit, onDelete }) {
+export default function ProductList({ products, role, onEdit, onDelete }) {
   if (!products.length) {
     return <div className="empty">Товаров пока нет</div>;
   }
@@ -11,6 +11,7 @@ export default function ProductList({ products, onEdit, onDelete }) {
       {products.map((product) => (
         <ProductCard
           key={product.id}
+          role={role}
           product={product}
           onEdit={onEdit}
           onDelete={onDelete}

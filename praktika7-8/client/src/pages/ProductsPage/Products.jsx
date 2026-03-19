@@ -4,7 +4,8 @@ import ProductList from '../../components/ProductsList';
 import ProductModal from '../../components/ProductModal';
 import { api } from '../../api';
 
-export default function ProductsPage() {
+export default function ProductsPage(props) {
+  const user = props.user;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -59,23 +60,25 @@ export default function ProductsPage() {
     }
   };
 
-const handleSubmitModal = async (productData) => {
-  try {
-    if (modalMode === 'create') {
-      const newProduct = await api.createProduct(productData); 
-      setProducts((prev) => [...prev, newProduct]);
-    } else {
-      const updatedProduct = await api.updateProduct(productData.id, productData); 
-      setProducts((prev) =>
-        prev.map((p) => (p.id === productData.id ? updatedProduct : p))
-      );
+  const handleSubmitModal = async (productData) => {
+    try {
+      if (modalMode === 'create') {
+        const newProduct = await api.createProduct(productData);
+        setProducts((prev) => [...prev, newProduct]);
+      } else {
+        const updatedProduct = await api.updateProduct(productData.id, productData);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === productData.id ? updatedProduct : p))
+        );
+      }
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      alert('Ошибка сохранения товара');
     }
-    closeModal();
-  } catch (err) {
-    console.error(err);
-    alert('Ошибка сохранения товара');
-  }
-};
+  };
+
+  const userRole = user?.role;
 
   return (
     <div className="page">
@@ -84,9 +87,11 @@ const handleSubmitModal = async (productData) => {
         <div className="container">
           <div className="toolbar">
             <h1 className="title">Товары</h1>
-            <button className="btn btn--primary" onClick={openCreateModal}>
-              + Добавить товар
-            </button>
+            {userRole === 'admin' || userRole === 'seller' ? (
+              <button className="btn btn--primary" onClick={openCreateModal}>
+                + Добавить товар
+              </button>
+            ) : null}
           </div>
 
           {loading ? (
@@ -94,6 +99,7 @@ const handleSubmitModal = async (productData) => {
           ) : (
             <ProductList
               products={products}
+              role={user.role}
               onEdit={openEditModal}
               onDelete={handleDelete}
             />

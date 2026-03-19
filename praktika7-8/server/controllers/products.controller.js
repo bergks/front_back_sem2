@@ -64,14 +64,13 @@ const productsController = {
     res.json(updatedProduct);
   },
 
-  // Удалить товар
   delete(req, res) {
-    const deleted = Product.delete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ error: "Product not found" });
+        const deleted = Product.delete(req.params.id);
+        if (!deleted) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+        res.status(204).send();
     }
-    res.status(204).send();
-  }
 };
 
 module.exports = productsController;

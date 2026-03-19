@@ -16,7 +16,8 @@ const LoginPage = ({ onLogin }) => {
     const errorMessages = {
         'Invalid credentials': 'Неверный email или пароль',
         'email and password are required': 'Заполните все поля',
-        "Internal server error": 'Ошибка на сервере'
+        "Internal server error": 'Ошибка на сервере',
+        'User is banned': 'Пользоаватель заблокирован'
     };
 
     const handleChange = (e) => {

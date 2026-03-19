@@ -25,8 +25,8 @@ function generateAccessToken(user) {
     { 
       sub: user.id, 
       email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name
+      role: user.role,
+      status: user.status
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
@@ -45,7 +45,7 @@ const authController = {
   // Регистрация
   async register(req, res) {
     try {
-      const { email, first_name, last_name, password } = req.body;
+      const { email, first_name, last_name, password, role} = req.body;
 
       if (!email || !first_name || !last_name || !password) {
         return res.status(400).json({ error: "All fields are required" });
@@ -60,7 +60,8 @@ const authController = {
         email,
         first_name,
         last_name,
-        password
+        password,
+        role: 'user'
       });
 
       res.status(201).json(newUser);
@@ -87,6 +88,10 @@ const authController = {
       const isValid = await verifyPassword(password, user.passwordHash);
       if (!isValid) {
         return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      if (user.status === 'banned') {
+        return res.status(401).json({ error: "User is banned" })
       }
 
       const accessToken = generateAccessToken(user);
@@ -127,6 +132,10 @@ const authController = {
           return res.status(401).json({ error: "User not found" });
         }
 
+        if (user.status === 'banned') {
+          return res.json({error: 'User is banned'})
+        }
+
         // Ротация токенов: удаляем старый refresh-токен
         refreshTokens.delete(refreshToken);
         
@@ -164,7 +173,8 @@ const authController = {
         id: user.id,
         email: user.email,
         first_name: user.first_name,
-        last_name: user.last_name
+        last_name: user.last_name,
+        role: user.role
       });
     } catch (error) {
       console.error('GetMe error:', error);

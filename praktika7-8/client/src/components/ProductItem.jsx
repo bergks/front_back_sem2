@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ProductCard({ product, onEdit, onDelete }) {
+export default function ProductCard({ product, role, onEdit, onDelete }) {
   return (
     <div className="product-card">
       <div className="product-card__image-container">
@@ -28,12 +28,14 @@ export default function ProductCard({ product, onEdit, onDelete }) {
           <span className="product-card__stock">В наличии: {product.stock}</span>
         </div>
         <div className="product-card__actions">
+          {role === 'admin' || role === 'seller' ? (
           <button className="btn" onClick={() => onEdit(product)}>
             Редактировать
-          </button>
-          <button className="btn btn--danger" onClick={() => onDelete(product.id)}>
-            Удалить
-          </button>
+          </button>) : null}
+          {role === 'admin' ? (
+            <button className="btn btn--danger" onClick={() => onDelete(product.id)}>
+              Удалить
+            </button>) : null}
         </div>
       </div>
     </div>
