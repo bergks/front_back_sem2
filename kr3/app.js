@@ -7,11 +7,30 @@ function loadNotes() {
     const notes = JSON.parse(localStorage.getItem('notes') || '[]');
 
     if (notes.length === 0) {
-        list.innerHTML = '<li class="empty">📭 Нет заметок. Добавьте первую!</li>';
+        list.innerHTML = '<li class="empty"> Нет заметок. Добавьте первую!</li>';
         return;
     }
-    
-    list.innerHTML = notes.map(note => `<li>${note}</li>`).join('');
+
+    list.innerHTML = notes.map((note, index) => `
+        <li>
+            <span>${escapeHtml(note)}</span>
+            <button class="delete-btn" data-index="${index}">✖ Удалить</button>
+        </li>
+    `).join('');
+
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const index = parseInt(btn.dataset.index);
+            deleteNote(index);
+        });
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 // Сохранение заметки
 function addNote(text) {
@@ -20,6 +39,14 @@ function addNote(text) {
     localStorage.setItem('notes', JSON.stringify(notes));
     loadNotes();
 }
+
+function deleteNote(index) {
+    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+    notes.splice(index, 1);
+    localStorage.setItem('notes', JSON.stringify(notes));
+    loadNotes();
+}
+
 // Обработка отправки формы
 form.addEventListener('submit', (e) => {
     e.preventDefault();
