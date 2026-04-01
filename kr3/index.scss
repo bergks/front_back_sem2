@@ -1,3 +1,6 @@
+// style.scss
+
+// Переменные
 $bg-color: #f8f9fa;
 $card-bg: #ffffff;
 $primary-color: #704af7;
@@ -22,161 +25,239 @@ body {
     background: $bg-color;
     color: $text-color;
     line-height: 1.6;
-    padding: 40px 20px;
+    padding: 10px;
     min-height: 100vh;
 }
 
-h1 {
-    text-align: center;
-    font-size: 40px;
-    font-weight: 500;
-    margin-bottom: 30px;
-    color: $text-color;
+.container {
+    width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-#note-form {
-    max-width: 800px;
-    margin: 0 auto 30px;
+// ===== ШАПКА (APP SHELL) =====
+.app-header {
     background: $card-bg;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    border-radius: $radius;
-    gap: 16px;
+    padding: 20px 20px 0;
     box-shadow: $shadow;
-    
-    input {
-        flex: 1;
-        border: 1px solid $border-color;
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 1.5rem;
-        transition: all 0.3s ease;
-        
-        &:focus {
-            outline: none;
-            border-color: $primary-color;
-            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-        }
-    }
-    
-    button {
-        background: $primary-color;
-        border: none;
-        color: white;
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 1.5rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        
-        &:hover {
-            background: $primary-hover;
-            transform: translateY(-1px);
-        }
-        
-        &:active {
-            transform: translateY(0);
-        }
-    }
-}
-
-// Список заметок
-#notes-list {
-    max-width: 800px;
-    margin: 0 auto;
-    list-style: none;
-    
-    li {
-        background: $card-bg;
-        padding: 16px 20px;
-        margin-bottom: 12px;
-        border-radius: $radius;
-        box-shadow: $shadow;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: all 0.3s ease;
-        
-        &:hover {
-            box-shadow: $shadow-hover;
-            transform: translateX(4px);
-        }
-        
-        // Кнопка удаления (только если есть)
-        button {
-            background: $danger-color;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            
-            &:hover {
-                background: $danger-hover;
-                transform: scale(1.05);
-            }
-        }
-    }
-    
-    li.empty {
-        justify-content: center;
-        color: $text-light;
-        font-style: italic;
-        background: rgba($card-bg, 0.5);
-        
-        &:hover {
-            transform: none;
-            box-shadow: $shadow;
-        }
-    }
-}
-
-@media (max-width: 640px) {
-    body {
-        padding: 20px;
-    }
+    margin-bottom: 30px;
     
     h1 {
-        font-size: 1.5rem;
+        text-align: center;
+        font-size: 40px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        color: $text-color;
     }
     
-    #note-form {
-        padding: 16px;
+    // Навигационные вкладки
+    .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        border-bottom: 2px solid $border-color;
         
-        .row {
-            flex-direction: column;
-            gap: 12px;
+        .tab {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: $text-light;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
             
-            input, button {
-                width: 100%;
+            &:hover {
+                color: $primary-color;
+            }
+            
+            &.active {
+                color: $primary-color;
+                
+                &::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                    background: $primary-color;
+                }
+            }
+        }
+    }
+}
+
+// ===== ОСНОВНОЙ КОНТЕЙНЕР =====
+.app-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    min-height: 60vh;
+}
+
+// ===== СТРАНИЦА ГЛАВНАЯ (home.html) =====
+.home-content {
+    .note-form-container {
+        background: $card-bg;
+        padding: 24px;
+        border-radius: $radius;
+        box-shadow: $shadow;
+        margin-bottom: 30px;
+        
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            color: $text-color;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+            
+            input {
+                flex: 1;
+                border: 1px solid $border-color;
+                border-radius: 8px;
+                padding: 12px 16px;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                
+                &:focus {
+                    outline: none;
+                    border-color: $primary-color;
+                    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+                }
+            }
+            
+            button {
+                background: $primary-color;
+                border: none;
+                color: white;
+                border-radius: 8px;
+                padding: 12px 24px;
+                font-size: 1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                white-space: nowrap;
+                
+                &:hover {
+                    background: $primary-hover;
+                    transform: translateY(-1px);
+                }
+                
+                &:active {
+                    transform: translateY(0);
+                }
             }
         }
     }
     
-    #notes-list li {
-        flex-direction: column;
-        gap: 12px;
-        text-align: center;
-        
-        button {
-            width: fit-content;
-            margin: 0 auto;
+    .notes-container {
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            color: $text-color;
         }
-    }
-    
-    .status {
-        bottom: 10px;
-        right: 10px;
-        font-size: 10px;
-        padding: 4px 12px;
+        
+        #notes-list {
+            list-style: none;
+            
+            li {
+                background: $card-bg;
+                padding: 16px 20px;
+                margin-bottom: 12px;
+                border-radius: $radius;
+                box-shadow: $shadow;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    box-shadow: $shadow-hover;
+                    transform: translateX(4px);
+                }
+                
+                .delete-btn {
+                    background: $danger-color;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    
+                    &:hover {
+                        background: $danger-hover;
+                        transform: scale(1.05);
+                    }
+                }
+            }
+            
+            li.empty {
+                justify-content: center;
+                color: $text-light;
+                font-style: italic;
+                background: rgba($card-bg, 0.5);
+                
+                &:hover {
+                    transform: none;
+                    box-shadow: $shadow;
+                }
+            }
+        }
     }
 }
 
-// Анимация при добавлении/удалении
+// ===== СТРАНИЦА О ПРИЛОЖЕНИИ (about.html) =====
+.about-content {
+    background: $card-bg;
+    padding: 32px;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: $text-color;
+        text-align: center;
+    }
+    
+    p {
+        margin-bottom: 16px;
+        line-height: 1.8;
+        
+        strong {
+            color: $primary-color;
+        }
+    }
+    
+    ul {
+        margin: 20px 0;
+        padding-left: 20px;
+        
+        li {
+            margin-bottom: 8px;
+            color: $text-color;
+        }
+    }
+}
+
+
+// ===== ОБЩИЕ СТИЛИ ДЛЯ ОШИБОК =====
+.error {
+    text-align: center;
+    padding: 40px;
+    color: $danger-color;
+    background: rgba($danger-color, 0.1);
+    border-radius: $radius;
+    margin: 20px 0;
+}
+
+// ===== АНИМАЦИЯ =====
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -190,4 +271,54 @@ h1 {
 
 #notes-list li {
     animation: fadeIn 0.3s ease;
+}
+
+// ===== АДАПТИВНОСТЬ =====
+@media (max-width: 640px) {
+    .app-header {
+        padding: 16px 16px 0;
+        
+        h1 {
+            font-size: 1.5rem;
+        }
+        
+        .tabs .tab {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+    }
+    
+    .app-content {
+        padding: 0 16px 20px;
+    }
+    
+    .home-content .note-form-container .form-row {
+        flex-direction: column;
+        
+        input, button {
+            width: 100%;
+        }
+    }
+    
+    .about-content {
+        padding: 20px;
+    }
+    
+    #notes-list li {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        
+        .delete-btn {
+            width: fit-content;
+            margin: 0 auto;
+        }
+    }
+    
+    .status {
+        bottom: 10px;
+        right: 10px;
+        font-size: 10px;
+        padding: 4px 12px;
+    }
 }

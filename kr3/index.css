@@ -9,68 +9,126 @@ body {
   background: #f8f9fa;
   color: #2c3e50;
   line-height: 1.6;
-  padding: 40px 20px;
+  padding: 10px;
   min-height: 100vh;
 }
 
-h1 {
+.container {
+  width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app-header {
+  background: #ffffff;
+  padding: 20px 20px 0;
+  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
+  margin-bottom: 30px;
+}
+.app-header h1 {
   text-align: center;
   font-size: 40px;
   font-weight: 500;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #2c3e50;
 }
-
-#note-form {
-  max-width: 800px;
-  margin: 0 auto 30px;
-  background: #ffffff;
-  padding: 20px;
+.app-header .tabs {
   display: flex;
-  justify-content: space-between;
-  border-radius: 12px;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
+  justify-content: center;
+  gap: 8px;
+  border-bottom: 2px solid #e9ecef;
 }
-#note-form input {
+.app-header .tabs .tab {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.app-header .tabs .tab:hover {
+  color: #704af7;
+}
+.app-header .tabs .tab.active {
+  color: #704af7;
+}
+.app-header .tabs .tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #704af7;
+}
+
+.app-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+  min-height: 60vh;
+}
+
+.home-content .note-form-container {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
+  margin-bottom: 30px;
+}
+.home-content .note-form-container h2 {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: #2c3e50;
+}
+.home-content .note-form-container .form-row {
+  display: flex;
+  gap: 16px;
+}
+.home-content .note-form-container .form-row input {
   flex: 1;
   border: 1px solid #e9ecef;
   border-radius: 8px;
   padding: 12px 16px;
-  font-size: 1.5rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
-#note-form input:focus {
+.home-content .note-form-container .form-row input:focus {
   outline: none;
   border-color: #704af7;
   box-shadow: 0 0 0 3px rgba(112, 74, 247, 0.1);
 }
-#note-form button {
+.home-content .note-form-container .form-row button {
   background: #704af7;
   border: none;
   color: white;
   border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 1.5rem;
+  padding: 12px 24px;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
 }
-#note-form button:hover {
+.home-content .note-form-container .form-row button:hover {
   background: #813ae5;
   transform: translateY(-1px);
 }
-#note-form button:active {
+.home-content .note-form-container .form-row button:active {
   transform: translateY(0);
 }
-
-#notes-list {
-  max-width: 800px;
-  margin: 0 auto;
+.home-content .notes-container h2 {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: #2c3e50;
+}
+.home-content .notes-container #notes-list {
   list-style: none;
 }
-#notes-list li {
+.home-content .notes-container #notes-list li {
   background: #ffffff;
   padding: 16px 20px;
   margin-bottom: 12px;
@@ -81,11 +139,11 @@ h1 {
   align-items: center;
   transition: all 0.3s ease;
 }
-#notes-list li:hover {
+.home-content .notes-container #notes-list li:hover {
   box-shadow: 0 4px 12px rgba(134, 62, 173, 0.38);
   transform: translateX(4px);
 }
-#notes-list li button {
+.home-content .notes-container #notes-list li .delete-btn {
   background: #9a7ffc;
   border: none;
   border-radius: 6px;
@@ -94,55 +152,58 @@ h1 {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-#notes-list li button:hover {
+.home-content .notes-container #notes-list li .delete-btn:hover {
   background: #9666db;
   transform: scale(1.05);
 }
-#notes-list li.empty {
+.home-content .notes-container #notes-list li.empty {
   justify-content: center;
   color: #6c757d;
   font-style: italic;
   background: rgba(255, 255, 255, 0.5);
 }
-#notes-list li.empty:hover {
+.home-content .notes-container #notes-list li.empty:hover {
   transform: none;
   box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
 }
 
-@media (max-width: 640px) {
-  body {
-    padding: 20px;
-  }
-  h1 {
-    font-size: 1.5rem;
-  }
-  #note-form {
-    padding: 16px;
-  }
-  #note-form .row {
-    flex-direction: column;
-    gap: 12px;
-  }
-  #note-form .row input, #note-form .row button {
-    width: 100%;
-  }
-  #notes-list li {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
-  #notes-list li button {
-    width: -moz-fit-content;
-    width: fit-content;
-    margin: 0 auto;
-  }
-  .status {
-    bottom: 10px;
-    right: 10px;
-    font-size: 10px;
-    padding: 4px 12px;
-  }
+.about-content {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
 }
+.about-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  text-align: center;
+}
+.about-content p {
+  margin-bottom: 16px;
+  line-height: 1.8;
+}
+.about-content p strong {
+  color: #704af7;
+}
+.about-content ul {
+  margin: 20px 0;
+  padding-left: 20px;
+}
+.about-content ul li {
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #9a7ffc;
+  background: rgba(154, 127, 252, 0.1);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -155,4 +216,45 @@ h1 {
 }
 #notes-list li {
   animation: fadeIn 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 16px 16px 0;
+  }
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+  .app-header .tabs .tab {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+  .app-content {
+    padding: 0 16px 20px;
+  }
+  .home-content .note-form-container .form-row {
+    flex-direction: column;
+  }
+  .home-content .note-form-container .form-row input, .home-content .note-form-container .form-row button {
+    width: 100%;
+  }
+  .about-content {
+    padding: 20px;
+  }
+  #notes-list li {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  #notes-list li .delete-btn {
+    width: -moz-fit-content;
+    width: fit-content;
+    margin: 0 auto;
+  }
+  .status {
+    bottom: 10px;
+    right: 10px;
+    font-size: 10px;
+    padding: 4px 12px;
+  }
 }/*# sourceMappingURL=index.css.map */
