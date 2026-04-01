@@ -30,7 +30,7 @@ h1 {
   justify-content: space-between;
   border-radius: 12px;
   gap: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
 }
 #note-form input {
   flex: 1;
@@ -42,11 +42,11 @@ h1 {
 }
 #note-form input:focus {
   outline: none;
-  border-color: #4a6cf7;
-  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+  border-color: #704af7;
+  box-shadow: 0 0 0 3px rgba(112, 74, 247, 0.1);
 }
 #note-form button {
-  background: #4a6cf7;
+  background: #704af7;
   border: none;
   color: white;
   border-radius: 8px;
@@ -58,7 +58,7 @@ h1 {
   white-space: nowrap;
 }
 #note-form button:hover {
-  background: #3a5ce5;
+  background: #813ae5;
   transform: translateY(-1px);
 }
 #note-form button:active {
@@ -75,18 +75,18 @@ h1 {
   padding: 16px 20px;
   margin-bottom: 12px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.3s ease;
 }
 #notes-list li:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(134, 62, 173, 0.38);
   transform: translateX(4px);
 }
 #notes-list li button {
-  background: #ff6b6b;
+  background: #9a7ffc;
   border: none;
   border-radius: 6px;
   padding: 6px 12px;
@@ -95,7 +95,7 @@ h1 {
   transition: all 0.3s ease;
 }
 #notes-list li button:hover {
-  background: #ff5252;
+  background: #9666db;
   transform: scale(1.05);
 }
 #notes-list li.empty {
@@ -106,7 +106,7 @@ h1 {
 }
 #notes-list li.empty:hover {
   transform: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
 }
 
 @media (max-width: 640px) {
