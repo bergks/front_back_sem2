@@ -1,0 +1,40 @@
+# Зависимости Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Логи
+*.log
+logs/
+*.log
+
+# Сборка и кэш
+.DS_Store
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env
+.env.local
+.env.*.local
+
+# Системные файлы
+Thumbs.db
+desktop.ini
+
+# Сертификаты (если есть)
+*.pem
+*.key
+*.crt
+
+# Временные файлы
+*.tmp
+*.temp

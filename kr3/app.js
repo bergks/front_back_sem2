@@ -1,8 +1,27 @@
 // app.js - навигация и логика заметок
 
+const socket = io('http://localhost:3001');
+let globalLoadNotes = null;
+
 const contentDiv = document.getElementById('app-content');
 const homeBtn = document.getElementById('home-btn');
 const aboutBtn = document.getElementById('about-btn');
+const enablePushBtn = document.getElementById('enable-push');
+const disablePushBtn = document.getElementById('disable-push');
+
+console.log('Кнопка enable:', enablePushBtn);
+console.log('Кнопка disable:', disablePushBtn);
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
 
 // ===== НАВИГАЦИЯ =====
 function setActiveButton(activeId) {
@@ -10,14 +29,84 @@ function setActiveButton(activeId) {
     document.getElementById(activeId).classList.add('active');
 }
 
+async function updateButtonState() {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+
+    if (subscription) {
+        enablePushBtn.style.display = 'none';
+        disablePushBtn.style.display = 'inline-block';
+    } else {
+        enablePushBtn.style.display = 'inline-block';
+        disablePushBtn.style.display = 'none';
+    }
+}
+
+window.addEventListener('storage', (event) => {
+    if (event.key === 'pushSubscriptionStatus') {
+        updateButtonState();
+    }
+});
+
+async function subscribeToPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn('Push не поддерживается');
+        return;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array('BElbp5l7uhT4iDFXk6lpqqn4woTrAaBQU7dxjB33eIadzEdwRxf8vt9GWavfREQKMdZBoyoMo9Arke6IkhIrg-o')
+        });
+
+        await fetch('http://localhost:3001/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(subscription)
+        });
+
+        console.log('✅ Подписка на push отправлена');
+
+        localStorage.setItem('pushSubscriptionStatus', 'subscribed');
+        updateButtonState();
+    } catch (err) {
+        console.error('❌ Ошибка подписки на push:', err);
+    }
+}
+
+async function unsubscribeFromPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription) {
+            await fetch('http://localhost:3001/unsubscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint: subscription.endpoint })
+            });
+            await subscription.unsubscribe();
+            console.log('✅ Отписка выполнена');
+            localStorage.setItem('pushSubscriptionStatus', 'unsubscribed');
+            updateButtonState();
+        }
+    } catch (err) {
+        console.error('❌ Ошибка отписки:', err);
+    }
+}
+
 async function loadContent(page) {
     try {
         const response = await fetch(`/content/${page}.html`);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const html = await response.text();
         contentDiv.innerHTML = html;
 
@@ -64,6 +153,8 @@ function initNotes() {
         });
     }
 
+    globalLoadNotes = loadNotes;
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -75,6 +166,7 @@ function initNotes() {
         notes.push(text);
         localStorage.setItem('notes', JSON.stringify(notes));
         loadNotes();
+        socket.emit('newTask', { text: text, timestamp: new Date().toISOString() });
     }
 
     function deleteNote(index) {
@@ -98,18 +190,75 @@ function initNotes() {
     loadNotes();
 }
 
+socket.on('taskAdded', (task) => {
+    console.log('📨 Задача от другого клиента:', task);
+
+    // Показываем всплывающее сообщение
+    const notification = document.createElement('div');
+    notification.textContent = `📌 ${task.text}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #704af7;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        cursor: pointer;
+    `;
+    notification.onclick = () => notification.remove();
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+
+    if (globalLoadNotes) {
+        globalLoadNotes();
+    }
+});
+
 // ===== РЕГИСТРАЦИЯ SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
         try {
             const registration = await navigator.serviceWorker.register('/sw.js');
             console.log('✅ Service Worker зарегистрирован:', registration.scope);
+
+            await updateButtonState();
         } catch (err) {
             console.error('❌ Ошибка регистрации Service Worker:', err);
         }
     });
 } else {
     console.warn('⚠️ Service Worker не поддерживается');
+}
+
+if (enablePushBtn) {
+    enablePushBtn.addEventListener('click', async () => {
+        if (Notification.permission === 'denied') {
+            alert('Уведомления запрещены. Разрешите их в настройках браузера.');
+            return;
+        }
+        if (Notification.permission === 'default') {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                alert('Необходимо разрешить уведомления.');
+                return;
+            }
+        }
+        await subscribeToPush();
+        enablePushBtn.style.display = 'none';
+        disablePushBtn.style.display = 'inline-block';
+    });
+}
+
+if (disablePushBtn) {
+    disablePushBtn.addEventListener('click', async () => {
+        await unsubscribeFromPush();
+        disablePushBtn.style.display = 'none';
+        enablePushBtn.style.display = 'inline-block';
+    });
 }
 
 // ===== КНОПКИ НАВИГАЦИИ =====

@@ -115,3 +115,42 @@ self.addEventListener('fetch', (event) => {
             })
     );
 });
+
+// sw.js (добавь обработчик push в конец файла)
+
+// ... остальной код sw.js из 15-й практики ...
+
+// ===== PUSH-УВЕДОМЛЕНИЯ =====
+self.addEventListener('push', (event) => {
+    let data = { title: '📝 Новая заметка!', body: 'У вас новая заметка' };
+    
+    if (event.data) {
+        try {
+            data = event.data.json();
+        } catch (e) {
+            data.body = event.data.text();
+        }
+    }
+    
+    const options = {
+        body: data.body,
+        icon: '/icons/favicon-128x128.png',
+        badge: '/icons/favicon-48x48.png',
+        vibrate: [200, 100, 200],
+        data: {
+            url: '/'
+        }
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
+});
+
+// Обработка клика по уведомлению
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow('/')
+    );
+});
