@@ -1,6 +1,5 @@
 // app.js - навигация и логика заметок
 
-const socket = io('http://localhost:3001');
 let globalLoadNotes = null;
 
 const contentDiv = document.getElementById('app-content');
@@ -9,8 +8,22 @@ const aboutBtn = document.getElementById('about-btn');
 const enablePushBtn = document.getElementById('enable-push');
 const disablePushBtn = document.getElementById('disable-push');
 
-console.log('Кнопка enable:', enablePushBtn);
-console.log('Кнопка disable:', disablePushBtn);
+const socket = io('http://localhost:3001', {
+    reconnectionAttempts: 3,     // максимум 3 попытки
+    reconnectionDelay: 1000,     // ждать 1 секунду между попытками
+    timeout: 5000,               // таймаут подключения 5 секунд
+    autoConnect: true
+});
+
+// Обработка ошибок подключения
+socket.on('connect_error', (error) => {
+    console.warn('⚠️ WebSocket не доступен (сервер не запущен)');
+    // Больше не спамим ошибками
+});
+
+socket.on('reconnect_failed', () => {
+    console.warn('❌ WebSocket: не удалось подключиться после 3 попыток');
+});
 
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);

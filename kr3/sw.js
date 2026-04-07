@@ -1,6 +1,6 @@
 // sw.js (исправленная версия)
 
-const STATIC_CACHE = 'app-shell-v2';
+const STATIC_CACHE = 'app-shell-v3';
 const DYNAMIC_CACHE = 'dynamic-content-v2';
 
 // Статические ресурсы (App Shell)
@@ -10,6 +10,7 @@ const STATIC_ASSETS = [
     '/app.js',
     '/index.css',
     '/manifest.json',
+    '/node_modules/socket.io-client/dist/socket.io.min.js',
     '/icons/favicon-16x16.png',
     '/icons/favicon-32x32.png',
     '/icons/favicon-48x48.png',
