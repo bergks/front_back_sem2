@@ -168,6 +168,12 @@ app.post('/snooze', (req, res) => {
         reminderTime: newReminderTime,
         socketId: reminder.socketId
     });
+
+    io.emit('reminderSnoozed', {
+        id: reminderId,
+        newReminderTime: newReminderTime,
+        text: reminder.text
+    });
     
     console.log(`⏰ Напоминание ${reminderId} отложено на 5 минут`);
     res.status(200).json({ message: 'Reminder snoozed for 5 minutes' });

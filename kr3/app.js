@@ -395,4 +395,24 @@ aboutBtn.addEventListener('click', () => {
     loadContent('about');
 });
 
+socket.on('reminderSnoozed', (data) => {
+    console.log('🔄 Напоминание отложено, обновляем карточку:', data);
+    
+    const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+    const noteIndex = notes.findIndex(note => note.id === data.id);
+    
+    if (noteIndex !== -1) {
+        notes[noteIndex].reminder = data.newReminderTime;
+        localStorage.setItem('notes', JSON.stringify(notes));
+        
+        if (globalLoadNotes) {
+            globalLoadNotes();
+        }
+        
+        const newDate = new Date(data.newReminderTime);
+        const formattedTime = newDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        showNotificationMessage(`⏰ Напоминание отложено до ${formattedTime}`, '#ff9800');
+    }
+});
+
 loadContent('home');
