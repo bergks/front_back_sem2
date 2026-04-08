@@ -1,4 +1,4 @@
-// sw.js (исправленная версия)
+// sw.js (рабочая версия)
 
 const STATIC_CACHE = 'app-shell-v3';
 const DYNAMIC_CACHE = 'dynamic-content-v2';
@@ -23,7 +23,7 @@ const STATIC_ASSETS = [
 // ===== УСТАНОВКА =====
 self.addEventListener('install', (event) => {
     console.log('🔧 SW: установка v2');
-    
+
     event.waitUntil(
         caches.open(STATIC_CACHE)
             .then(cache => {
@@ -38,7 +38,7 @@ self.addEventListener('install', (event) => {
 // ===== АКТИВАЦИЯ =====
 self.addEventListener('activate', (event) => {
     console.log('🚀 SW: активация v2');
-    
+
     event.waitUntil(
         caches.keys().then(keys => {
             return Promise.all(
@@ -55,11 +55,9 @@ self.addEventListener('activate', (event) => {
 // ===== ПЕРЕХВАТ ЗАПРОСОВ =====
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
-    
-    // Пропускаем внешние ресурсы
+
     if (url.origin !== location.origin) return;
-    
-    // ===== ДИНАМИЧЕСКИЙ КОНТЕНТ (Network First) =====
+
     if (url.pathname.startsWith('/content/')) {
         event.respondWith(
             fetch(event.request)
@@ -67,7 +65,6 @@ self.addEventListener('fetch', (event) => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
                     }
-                    // Кэшируем свежий ответ
                     const responseClone = response.clone();
                     caches.open(DYNAMIC_CACHE).then(cache => {
                         cache.put(event.request, responseClone);
@@ -76,21 +73,16 @@ self.addEventListener('fetch', (event) => {
                 })
                 .catch(async (error) => {
                     console.warn(`⚠️ Сеть недоступна для ${url.pathname}, ищем в кэше...`);
-                    
-                    // Ищем в кэше
                     const cached = await caches.match(event.request);
                     if (cached) {
                         console.log(`📦 Найдено в кэше: ${url.pathname}`);
                         return cached;
                     }
-                    
-                    // Fallback — если файла нет нигде
                     console.error(`❌ Файл не найден: ${url.pathname}`);
                     return new Response(
                         `<div class="error">
                             <h3>⚠️ Страница не найдена</h3>
                             <p>Файл ${url.pathname} не найден.</p>
-                            <p>Проверьте, что файл существует в папке /content/</p>
                         </div>`,
                         {
                             status: 404,
@@ -101,8 +93,7 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-    
-    // ===== СТАТИКА (Cache First) =====
+
     event.respondWith(
         caches.match(event.request)
             .then(cachedResponse => {
@@ -110,21 +101,20 @@ self.addEventListener('fetch', (event) => {
                     console.log(`📦 Из кэша: ${url.pathname}`);
                     return cachedResponse;
                 }
-                
                 console.log(`🌐 Из сети: ${url.pathname}`);
                 return fetch(event.request);
             })
     );
 });
 
-// sw.js (добавь обработчик push в конец файла)
-
-// ... остальной код sw.js из 15-й практики ...
-
 // ===== PUSH-УВЕДОМЛЕНИЯ =====
 self.addEventListener('push', (event) => {
-    let data = { title: '📝 Новая заметка!', body: 'У вас новая заметка' };
-    
+    let data = {
+        title: '📝 Новая заметка!',
+        body: 'У вас новая заметка',
+        reminderId: null
+    };
+
     if (event.data) {
         try {
             data = event.data.json();
@@ -132,17 +122,28 @@ self.addEventListener('push', (event) => {
             data.body = event.data.text();
         }
     }
-    
+
     const options = {
         body: data.body,
         icon: '/icons/favicon-128x128.png',
         badge: '/icons/favicon-48x48.png',
         vibrate: [200, 100, 200],
         data: {
-            url: '/'
+            url: '/',
+            reminderId: data.reminderId
         }
     };
-    
+
+    if (data.reminderId) {
+        options.actions = [
+            {
+                action: 'snooze',
+                title: '⏰ Отложить на 5 минут'
+            }
+        ];
+        options.requireInteraction = true;
+    }
+
     event.waitUntil(
         self.registration.showNotification(data.title, options)
     );
@@ -150,8 +151,29 @@ self.addEventListener('push', (event) => {
 
 // Обработка клика по уведомлению
 self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    event.waitUntil(
-        clients.openWindow('/')
-    );
+    const notification = event.notification;
+    const action = event.action;
+    const reminderId = notification.data.reminderId;
+    
+    notification.close();
+    
+    if (action === 'snooze' && reminderId) {
+        event.waitUntil(
+            fetch(`/snooze?reminderId=${reminderId}`, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Напоминание отложено');
+                } else {
+                    console.error('❌ Ошибка при откладывании');
+                }
+            })
+            .catch(err => console.error('❌ Snooze failed:', err))
+        );
+    } else {
+        event.waitUntil(
+            clients.openWindow('/')
+        );
+    }
 });

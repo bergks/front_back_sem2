@@ -41,7 +41,7 @@ body {
     padding: 20px 20px 0;
     box-shadow: $shadow;
     margin-bottom: 30px;
-    
+
     h1 {
         text-align: center;
         font-size: 40px;
@@ -49,14 +49,14 @@ body {
         margin-bottom: 20px;
         color: $text-color;
     }
-    
+
     // Навигационные вкладки
     .tabs {
         display: flex;
         justify-content: center;
         gap: 8px;
         border-bottom: 2px solid $border-color;
-        
+
         .tab {
             background: none;
             border: none;
@@ -67,14 +67,14 @@ body {
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            
+
             &:hover {
                 color: $primary-color;
             }
-            
+
             &.active {
                 color: $primary-color;
-                
+
                 &::after {
                     content: '';
                     position: absolute;
@@ -113,23 +113,23 @@ body {
     border: 1px solid transparent;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &--enable {
         background: #4a6cf7;
         color: white;
         border-color: #4a6cf7;
-        
+
         &:hover {
             background: #3a5ce5;
             transform: scale(1.02);
         }
     }
-    
+
     &--disable {
         background: transparent;
         color: #6c757d;
         border-color: #dee2e6;
-        
+
         &:hover {
             background: #f8f9fa;
             border-color: #adb5bd;
@@ -145,17 +145,17 @@ body {
         border-radius: $radius;
         box-shadow: $shadow;
         margin-bottom: 30px;
-        
+
         h2 {
             font-size: 1.25rem;
             margin-bottom: 16px;
             color: $text-color;
         }
-        
+
         .form-row {
             display: flex;
             gap: 16px;
-            
+
             input {
                 flex: 1;
                 border: 1px solid $border-color;
@@ -163,14 +163,18 @@ body {
                 padding: 12px 16px;
                 font-size: 1rem;
                 transition: all 0.3s ease;
-                
+
                 &:focus {
                     outline: none;
                     border-color: $primary-color;
                     box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
                 }
             }
-            
+
+            input[type="datetime-local"] {
+                flex: 1;
+            }
+
             button {
                 background: $primary-color;
                 border: none;
@@ -182,29 +186,29 @@ body {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 white-space: nowrap;
-                
+
                 &:hover {
                     background: $primary-hover;
                     transform: translateY(-1px);
                 }
-                
+
                 &:active {
                     transform: translateY(0);
                 }
             }
         }
     }
-    
+
     .notes-container {
         h2 {
             font-size: 1.25rem;
             margin-bottom: 16px;
             color: $text-color;
         }
-        
+
         #notes-list {
             list-style: none;
-            
+
             li {
                 background: $card-bg;
                 padding: 16px 20px;
@@ -215,12 +219,12 @@ body {
                 justify-content: space-between;
                 align-items: center;
                 transition: all 0.3s ease;
-                
+
                 &:hover {
                     box-shadow: $shadow-hover;
                     transform: translateX(4px);
                 }
-                
+
                 .delete-btn {
                     background: $danger-color;
                     border: none;
@@ -229,25 +233,42 @@ body {
                     color: white;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    
+
                     &:hover {
                         background: $danger-hover;
                         transform: scale(1.05);
                     }
                 }
             }
-            
+
             li.empty {
                 justify-content: center;
                 color: $text-light;
                 font-style: italic;
                 background: rgba($card-bg, 0.5);
-                
+
                 &:hover {
                     transform: none;
                     box-shadow: $shadow;
                 }
             }
+        }
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+        color: $text-light;
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    .note-reminder-info {
+        font-size: 0.8rem;
+        margin-top: 6px;
+        color: $text-light;
+
+        &::before {
+            content: "⏰ ";
         }
     }
 }
@@ -258,27 +279,27 @@ body {
     padding: 32px;
     border-radius: $radius;
     box-shadow: $shadow;
-    
+
     h2 {
         font-size: 1.5rem;
         margin-bottom: 20px;
         color: $text-color;
         text-align: center;
     }
-    
+
     p {
         margin-bottom: 16px;
         line-height: 1.8;
-        
+
         strong {
             color: $primary-color;
         }
     }
-    
+
     ul {
         margin: 20px 0;
         padding-left: 20px;
-        
+
         li {
             margin-bottom: 8px;
             color: $text-color;
@@ -303,6 +324,7 @@ body {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -317,44 +339,45 @@ body {
 @media (max-width: 640px) {
     .app-header {
         padding: 16px 16px 0;
-        
+
         h1 {
             font-size: 1.5rem;
         }
-        
+
         .tabs .tab {
             padding: 8px 16px;
             font-size: 0.875rem;
         }
     }
-    
+
     .app-content {
         padding: 0 16px 20px;
     }
-    
+
     .home-content .note-form-container .form-row {
         flex-direction: column;
-        
-        input, button {
+
+        input,
+        button {
             width: 100%;
         }
     }
-    
+
     .about-content {
         padding: 20px;
     }
-    
+
     #notes-list li {
         flex-direction: column;
         gap: 12px;
         text-align: center;
-        
+
         .delete-btn {
             width: fit-content;
             margin: 0 auto;
         }
     }
-    
+
     .status {
         bottom: 10px;
         right: 10px;

@@ -1,3 +1,4 @@
+@charset "UTF-8";
 * {
   margin: 0;
   padding: 0;
@@ -137,6 +138,9 @@ body {
   border-color: #704af7;
   box-shadow: 0 0 0 3px rgba(112, 74, 247, 0.1);
 }
+.home-content .note-form-container .form-row input[type=datetime-local] {
+  flex: 1;
+}
 .home-content .note-form-container .form-row button {
   background: #704af7;
   border: none;
@@ -201,6 +205,20 @@ body {
 .home-content .notes-container #notes-list li.empty:hover {
   transform: none;
   box-shadow: 0 2px 8px rgba(116, 46, 156, 0.24);
+}
+.home-content .form-hint {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 8px;
+  text-align: center;
+}
+.home-content .note-reminder-info {
+  font-size: 0.8rem;
+  margin-top: 6px;
+  color: #6c757d;
+}
+.home-content .note-reminder-info::before {
+  content: "⏰ ";
 }
 
 .about-content {
@@ -271,7 +289,8 @@ body {
   .home-content .note-form-container .form-row {
     flex-direction: column;
   }
-  .home-content .note-form-container .form-row input, .home-content .note-form-container .form-row button {
+  .home-content .note-form-container .form-row input,
+  .home-content .note-form-container .form-row button {
     width: 100%;
   }
   .about-content {

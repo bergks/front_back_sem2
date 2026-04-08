@@ -9,16 +9,15 @@ const enablePushBtn = document.getElementById('enable-push');
 const disablePushBtn = document.getElementById('disable-push');
 
 const socket = io('http://localhost:3001', {
-    reconnectionAttempts: 3,     // максимум 3 попытки
-    reconnectionDelay: 1000,     // ждать 1 секунду между попытками
-    timeout: 5000,               // таймаут подключения 5 секунд
+    reconnectionAttempts: 3,
+    reconnectionDelay: 1000,
+    timeout: 5000,
     autoConnect: true
 });
 
 // Обработка ошибок подключения
 socket.on('connect_error', (error) => {
     console.warn('⚠️ WebSocket не доступен (сервер не запущен)');
-    // Больше не спамим ошибками
 });
 
 socket.on('reconnect_failed', () => {
@@ -123,7 +122,6 @@ async function loadContent(page) {
         const html = await response.text();
         contentDiv.innerHTML = html;
 
-        // Если загружена главная страница — инициализируем заметки
         if (page === 'home') {
             initNotes();
         }
@@ -133,13 +131,27 @@ async function loadContent(page) {
     }
 }
 
-// ===== ЗАМЕТКИ =====
+//// ===== ЗАМЕТКИ =====
 function initNotes() {
     const form = document.getElementById('note-form');
     const input = document.getElementById('note-input');
+    const reminderTime = document.getElementById('reminder-time');
     const list = document.getElementById('notes-list');
 
     if (!form || !input || !list) return;
+
+    // Генерация уникального ID
+    function generateId() {
+        return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Форматирование времени
+    function formatReminderTime(timestamp) {
+        const date = new Date(timestamp);
+        const day = date.toLocaleDateString();
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `${day} в ${time}`;
+    }
 
     // Загрузка заметок
     function loadNotes() {
@@ -150,18 +162,31 @@ function initNotes() {
             return;
         }
 
-        list.innerHTML = notes.map((note, index) => `
-            <li>
-                <span>${escapeHtml(note)}</span>
-                <button class="delete-btn" data-index="${index}">✖ Удалить</button>
-            </li>
-        `).join('');
+        list.innerHTML = notes.map((note, index) => {
+            let reminderHtml = '';
+            if (note.reminder) {
+                reminderHtml = `
+                    <div class="note-reminder-info">
+                        Напоминание: ${formatReminderTime(note.reminder)}
+                    </div>
+                `;
+            }
+            return `
+                <li>
+                    <div class="note-content">
+                        <span>${escapeHtml(note.text)}</span>
+                        ${reminderHtml}
+                    </div>
+                    <button class="delete-btn" data-id="${note.id}" data-index="${index}">✖ Удалить</button>
+                </li>
+            `;
+        }).join('');
 
-        // Обработчики удаления
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
                 const index = parseInt(btn.dataset.index);
-                deleteNote(index);
+                deleteNote(index, id);
             });
         });
     }
@@ -174,46 +199,135 @@ function initNotes() {
         return div.innerHTML;
     }
 
-    function addNote(text) {
+    // Универсальная функция добавления заметки
+    function addNote(text, reminderTimestamp = null) {
         const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-        notes.push(text);
+        const newNote = {
+            id: generateId(),
+            text: text,
+            reminder: reminderTimestamp,
+            createdAt: Date.now()
+        };
+        notes.push(newNote);
         localStorage.setItem('notes', JSON.stringify(notes));
         loadNotes();
-        socket.emit('newTask', { text: text, timestamp: new Date().toISOString() });
+
+        // Отправляем через WebSocket
+        socket.emit('newTask', {
+            text: text,
+            timestamp: new Date().toISOString(),
+            hasReminder: !!reminderTimestamp
+        });
+
+        // Если есть напоминание - планируем на сервере
+        if (reminderTimestamp) {
+            socket.emit('newReminder', {
+                id: newNote.id,
+                text: text,
+                reminderTime: reminderTimestamp
+            });
+        }
     }
 
-    function deleteNote(index) {
+    function deleteNote(index, id) {
         const notes = JSON.parse(localStorage.getItem('notes') || '[]');
         notes.splice(index, 1);
         localStorage.setItem('notes', JSON.stringify(notes));
         loadNotes();
+        socket.emit('deleteReminder', { id: id });
     }
 
-    // Обработка формы
+    function showNotificationMessage(message, bgColor = '#704af7') {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${bgColor};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            cursor: pointer;
+        `;
+        notification.onclick = () => notification.remove();
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    // Обработка формы (одна форма для всего)
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = input.value.trim();
-        if (text) {
-            addNote(text);
-            input.value = '';
+
+        if (!text) {
+            showNotificationMessage('⚠️ Введите текст заметки', '#dc3545');
+            return;
         }
+
+        let reminderTimestamp = null;
+        const timeValue = reminderTime.value;
+
+        // Если пользователь заполнил дату
+        if (timeValue) {
+            reminderTimestamp = new Date(timeValue).getTime();
+
+            if (reminderTimestamp <= Date.now()) {
+                showNotificationMessage('⚠️ Время напоминания должно быть в будущем', '#dc3545');
+                return;
+            }
+        }
+
+        addNote(text, reminderTimestamp);
+        input.value = '';
+        reminderTime.value = '';
     });
 
-    // Первоначальная загрузка
     loadNotes();
 }
 
+// ===== WEBSOCKET СОБЫТИЯ =====
+// ===== WEBSOCKET СОБЫТИЯ =====
 socket.on('taskAdded', (task) => {
     console.log('📨 Задача от другого клиента:', task);
+    
+    // Показываем уведомление только для обычных заметок (без напоминания)
+    if (!task.hasReminder) {
+        showNotificationMessage(`📌 Новая заметка`, '#704af7');
+    }
+    
+    if (task.hasReminder) {
+        showNotificationMessage(`🔔 Новое напоминание`, '#704af7');
+    }
 
-    // Показываем всплывающее сообщение
+    if (globalLoadNotes) {
+        globalLoadNotes();
+    }
+});
+
+socket.on('reminderSent', (data) => {
+    console.log('🔔 Напоминание отправлено:', data);
+    
+    // Показываем уведомление о сработавшем напоминании
+    showNotificationMessage(`🔔 НАПОМИНАНИЕ: ${data.text}`, '#ff9800'); // Оранжевое для отличия
+    
+    if (globalLoadNotes) {
+        globalLoadNotes();
+    }
+});
+
+// Функция showNotificationMessage должна быть доступна глобально
+window.showNotificationMessage = function (message, bgColor = '#704af7') {
     const notification = document.createElement('div');
-    notification.textContent = `📌 ${task.text}`;
+    notification.textContent = message;
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #704af7;
+        background: ${bgColor};
         color: white;
         padding: 12px 20px;
         border-radius: 8px;
@@ -225,11 +339,7 @@ socket.on('taskAdded', (task) => {
     notification.onclick = () => notification.remove();
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
-
-    if (globalLoadNotes) {
-        globalLoadNotes();
-    }
-});
+};
 
 // ===== РЕГИСТРАЦИЯ SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
@@ -285,5 +395,4 @@ aboutBtn.addEventListener('click', () => {
     loadContent('about');
 });
 
-// Загружаем главную страницу при старте
 loadContent('home');
