@@ -3,7 +3,9 @@ const express = require('express');
 const router = express.Router();
 const productsController = require('../controllers/products.controller');
 const authMiddleware = require('../middleware/auth.middleware');
-const roleMiddleware = require('../middleware/role.middleware');  // ← исправил опечатку
+const roleMiddleware = require('../middleware/role.middleware');
+const cacheMiddleware = require('../middleware/cache.middleware')
+const { PRODUCTS_CACHE_TTL } = require('../utils/constants')
 
 /**
  * @swagger
@@ -26,7 +28,7 @@ const roleMiddleware = require('../middleware/role.middleware');  // ← исп�
  *       401:
  *         description: Не авторизован
  */
-router.get('/', authMiddleware, productsController.getAll);
+router.get('/', cacheMiddleware(() => "products:all", PRODUCTS_CACHE_TTL), authMiddleware, productsController.getAll);
 
 /**
  * @swagger
@@ -56,7 +58,7 @@ router.get('/', authMiddleware, productsController.getAll);
  *       404:
  *         description: Товар не найден
  */
-router.get('/:id', authMiddleware, productsController.getById);
+router.get('/:id', authMiddleware, cacheMiddleware((req) => `products:${req.params.id}`, PRODUCTS_CACHE_TTL), productsController.getById);
 
 /**
  * @swagger

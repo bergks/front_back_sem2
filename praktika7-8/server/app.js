@@ -8,6 +8,8 @@ const loggerMiddleware = require('./middleware/logger.middleware');
 const routes = require('./routes');
 const { setupSwagger } = require('./config/swagger');
 
+const { initRedis } = require('./utils/redis')
+
 const app = express();
 
 // Middleware
@@ -19,6 +21,8 @@ app.use(loggerMiddleware);
 setupSwagger(app);
 
 let refreshTokens = new Set();
+
+initRedis()
 
 // Подключаем все маршруты
 app.use('/api', routes);

@@ -1,31 +1,75 @@
-// controllers/products.controller.js
 const Product = require('../models/Product.model');
+const { invalidateCache, saveToCache } = require('../utils/redis');
 
-// Вспомогательная функция для поиска товара (используется только здесь)
+// Вспомогательная функция поиска
 function findProductOr404(id, res) {
-  const product = Product.findById(id);
-  if (!product) {
-    res.status(404).json({ error: "Product not found" });
+  try{
+    const product = Product.findById(id);
+    if (!product) {
+      res.status(404).json({ error: "Product not found" });
+      return null;
+    }
+    return product;
+  } catch (err){
+    console.error('Find product error', err);
+    res.status(500).json({error: 'Internal server error'})
     return null;
   }
-  return product;
 }
 
-const productsController = {
-  // Получить все товары
-  getAll(req, res) {
-    res.json(Product.getAll());
+// вспомогательная функция для очистки кэша (вне контроллера, потому что не должно быть доступа из других файлов. инкапсуляция)
+async function invalidateProductsCache(productId = null) {
+  await invalidateCache('products:all');
+  
+  if (productId) {
+      await invalidateCache(`products:${productId}`);
+      console.log(`Cache cleared for ${productId}`)
+  }
+  console.log('Cache cleared for all')
+}
+
+//MVC (model - данные, view - react, controller -  логика запросов)
+//объект с методами. контроллер - отвечает за то, что делать, а роуты только за маршруты (разделение ответственности)
+const productsController = { 
+  //получить все товары
+  async getAll(req, res) {
+    try{
+    const products = Product.getAll();
+
+    await saveToCache(req.cacheKey, products, req.cacheTTL)
+
+    return res.status(200).json({
+      source: 'server',
+      data: products
+    });
+    } catch (err) {
+      console.log('Get products error:', err)
+      res.status(500).json({error: 'Internal server error'})
+    }
   },
 
-  // Получить товар по ID
-  getById(req, res) {
+// Получить товар по ID
+async getById(req, res) {
+  try{
     const product = findProductOr404(req.params.id, res);
     if (!product) return;
-    res.json(product);
-  },
 
-  // Создать товар
-  create(req, res) {
+    if (req.cacheKey) {
+      await saveToCache(req.cacheKey, product, req.cacheTTL);
+    }
+
+    res.status(200).json({
+      source: 'server',
+      data: product});
+  } catch (err) {
+    console.error('Find product by id error:', err)
+    res.status(500).json({error: 'Internal server error'})
+  }
+},
+
+// Создать товар
+create(req, res) {
+  try{
     const { name, category, description, price, stock = 0, imageUrl } = req.body;
 
     if (!name || !category || !description || price === undefined || !imageUrl) {
@@ -42,16 +86,20 @@ const productsController = {
     });
 
     res.status(201).json(newProduct);
-  },
+  } catch (err) {
+    console.error('Create product error:', err);
+    res.status(500).json({error: 'Internal server error'})
+  }
+},
 
-  // Обновить товар
-  update(req, res) {
+// Обновить товар
+async update(req, res) {
+  try{
     const product = findProductOr404(req.params.id, res);
     if (!product) return;
 
     const { name, category, description, price, stock, imageUrl } = req.body;
 
-    // Собираем только те поля, которые пришли
     const updates = {};
     if (name !== undefined) updates.name = name.trim();
     if (category !== undefined) updates.category = category.trim();
@@ -61,16 +109,39 @@ const productsController = {
     if (imageUrl !== undefined) updates.imageUrl = imageUrl.trim();
 
     const updatedProduct = Product.update(req.params.id, updates);
-    res.json(updatedProduct);
-  },
+    
+    await invalidateProductsCache(product.id)
 
-  delete(req, res) {
-        const deleted = Product.delete(req.params.id);
-        if (!deleted) {
-            return res.status(404).json({ error: "Product not found" });
-        }
-        res.status(204).send();
+    res.status(200).json({
+      message: 'Product updated',
+      data: updatedProduct
+    });
+  } catch (err) {
+    console.error('Update user error:', err)
+    res.status(500).json({error: 'Internal server error'})
+  }
+},
+
+//удалить товар + вренуть удаленные данные
+async delete(req, res) {
+  try{
+    const deleted = Product.delete(req.params.id);
+    if (!deleted) {
+        return res.status(404).json({ error: "Product not found" });
     }
+
+    await invalidateProductsCache();
+
+    res.status(200).json({
+      message: "Product deleted",
+      data: deleted
+    });
+  } catch (err) {
+    console.error('Delete user error:', err)
+    res.status(500).json({error: 'Internal server error'})
+  }
+  },
 };
 
+//экспрот объекта из модуля, чтобы стал доступен в других файлах
 module.exports = productsController;

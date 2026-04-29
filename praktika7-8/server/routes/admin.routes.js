@@ -4,8 +4,9 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth.middleware');
 const roleMiddleware = require('../middleware/role.middleware');
 const adminController = require('../controllers/admin.controller');
+const cacheMiddleware = require('../middleware/cache.middleware');
+const { USERS_CACHE_TTL, PRODUCTS_CACHE_TTL } = require('../utils/constants.js')
 
-// Все маршруты требуют auth + admin роль
 router.use(authMiddleware);
 router.use(roleMiddleware(['admin']));
 
@@ -34,7 +35,7 @@ router.use(roleMiddleware(['admin']));
  *       500:
  *         description: Внутренняя ошибка сервера
  */
-router.get('/', adminController.getUsersList);
+router.get('/', cacheMiddleware(() => 'users:all', USERS_CACHE_TTL), adminController.getUsersList);
 
 /**
  * @swagger
@@ -67,7 +68,7 @@ router.get('/', adminController.getUsersList);
  *       404:
  *         description: Пользователь не найден
  */
-router.get('/:id', adminController.getUserById);
+router.get('/:id', cacheMiddleware((req) => `users:${req.params.id}`, USERS_CACHE_TTL), adminController.getUserById);
 
 /**
  * @swagger
