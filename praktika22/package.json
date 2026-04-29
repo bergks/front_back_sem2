@@ -1,0 +1,8 @@
+{
+  "name": "load-balancer-practice",
+  "version": "1.0.0",
+  "description": "Практика 22 по балансировке нагрузки",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  # Backend-сервер 1 (основной)
+  backend1:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend1
+    environment:
+      - PORT=3000
+      - SERVER_NAME=backend-1
+    restart: unless-stopped
+
+  # Backend-сервер 2 (основной)
+  backend2:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend2
+    environment:
+      - PORT=3000
+      - SERVER_NAME=backend-2
+    restart: unless-stopped
+
+  # Backend-сервер 3 (резервный)
+  backend3:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend3
+    environment:
+      - PORT=3000
+      - SERVER_NAME=backend-3-backup
+    restart: unless-stopped
+  
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: nginx-balancer
+    ports:
+      - "80:80"
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    restart: unless-stopped
+
+  haproxy:
+    build:
+      context: .
+      dockerfile: haproxy/Dockerfile
+    container_name: haproxy-balancer
+    ports:
+      - "81:80"
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    restart: unless-stopped
