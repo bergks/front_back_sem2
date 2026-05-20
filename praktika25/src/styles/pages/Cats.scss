@@ -1,0 +1,22 @@
+@use '../main.scss' as *;
+
+.cats-page {
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: $dark-green;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: lighten($text-dark, 20%);
+    margin-bottom: 2rem;
+  }
+
+  .cats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+}

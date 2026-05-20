@@ -1,0 +1,57 @@
+@use '../main.scss' as *;
+
+.cat-card {
+  background: $white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: $shadow;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  &-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: $gray-light;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  &:hover &-image img {
+    transform: scale(1.05);
+  }
+
+  &-content {
+    padding: 1.25rem;
+
+    h3 {
+      font-size: 1.25rem;
+      color: $dark-green;
+      margin-bottom: 0.25rem;
+    }
+
+    .age {
+      display: inline-block;
+      font-size: 0.8rem;
+      color: $primary-green;
+      background: $light-green;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: $text-dark;
+      line-height: 1.4;
+    }
+  }
+}
